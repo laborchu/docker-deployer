@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  <%buildData.forEach(function(service){%>
+  <%= service.serviceName %>:
+    <%if(service.buildPath){%>
+    build: <%= service.buildPath %>
+    <%}%>
+    image: <%= service.imageName %>
+    <%if(service.hostname){%>
+    hostname: <%= service.hostname %>
+    <%}%>
+    <%if(service.containerName){%>
+    container_name: <%= service.containerName %>
+    <%}%>
+    <%if(service.dns){%>
+    dns: <%= service.dns %>
+    <%}%>
+    <%if(service.ports){%>
+    ports:
+      <%Object.keys(service.ports).forEach(key => {%>
+      - "<%= key %>:<%= service.ports[key] %>"
+      <%})%>
+    <%}%>
+    <%if(service.volumes){%>
+    volumes:
+      <%Object.keys(service.volumes).forEach(key => {%>
+      - <%= key %>:<%= service.volumes[key] %>
+      <%})%>
+    <%}%>
+    <%if(service.links){%>
+    links:
+      <%service.links.forEach(key => {%>
+      - <%= key %>
+      <%})%>
+    <%}%>
+    <%if(service.depends){%>
+    depends_on:
+      <%service.depends.forEach(key => {%>
+      - <%= key.service %>
+      <%})%>
+    <%}%>
+    <%if(service.envs){%>
+    environment:
+      <%Object.keys(service.envs).forEach(key => {%>
+      - <%= key %>=<%= service.envs[key] %>
+      <%})%>
+    <%}%>
+    <%if(service.healthcheck){%>
+    healthcheck:
+      test: <%= service.healthcheck.test%>
+      interval: <%= service.healthcheck.interval%>
+      timeout: <%= service.healthcheck.timeout%>
+      retries: <%= service.healthcheck.retries%>
+    <%}%>
+  <%})%>
+
+
+<%if(useWeaveNet){%>
+networks:
+    default:
+        external:
+            name: weave
+<%}%>
+  
+  

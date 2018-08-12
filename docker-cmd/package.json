@@ -1,0 +1,426 @@
+{
+    "name": "docker-cmd",
+    "version": "1.0.0",
+    "description": "value docker deployer command",
+    "main": "manager.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "commander": "^2.9.0",
+        "lodash": "^4.17.4",
+        "mkdirp": "^0.5.1"
+    },
+    "compose": {
+        "nmw": {
+            "useWeaveNet": true,
+            "services": [{
+                "serviceName": "mysql",
+                "alias": ["mysql1"]
+            }, {
+                "serviceName": "redis",
+                "alias": ["redis1"]
+            }, {
+                "serviceName": "nodejs",
+                "alias": ["suanli-web1", "suanli-sop1"],
+                "count": 2,
+                "ports": {
+                    "13000": "3000"
+                }
+            }]
+        },
+        "tzk12": [{
+            "serviceName": "zookeeper"
+        }, {
+            "serviceName": "metaq",
+            "links": ["zookeeper1"],
+            "depends": ["zookeeper1"]
+        }, {
+            "serviceName": "mysql"
+        }, {
+            "serviceName": "memcached"
+        }, {
+            "serviceName": "es"
+        }, {
+            "serviceName": "redis"
+        }, {
+            "serviceName": "fastdfs"
+        }, {
+            "serviceName": "cw"
+        }, {
+            "serviceName": "nodejs",
+            "depends": ["fu-sop"],
+            "ports": {
+                "19002": "9002"
+            }
+        }, {
+            "serviceName": "java8",
+            "count": 3,
+            "alias": ["k12-app-server", "fu-web", "fu-sop"],
+            "links": ["mysql1", "zookeeper1", "metaq1", "memcached1"],
+            "depends": ["mysql1", "metaq1", "zookeeper1", "memcached1"],
+            "ports": {
+                "10081": "10081",
+                "18080": "8080"
+            }
+        }, {
+            "serviceName": "tomcat",
+            "count": 1,
+            "alias": ["os"],
+            "links": ["mysql1", "zookeeper1", "metaq1", "memcached1", "es1", "fastdfs1", "redis1"],
+            "ports": {
+                "18080": "8080"
+            },
+            "depends": ["mysql1", "metaq1", "es1", "fastdfs1"]
+        }],
+        "core": {
+            "useWeaveNet": true,
+            "services": [{
+                "serviceName": "es",
+                "alias": ["es1"]
+            }, {
+                "serviceName": "mysql",
+                "alias": ["mysql1"]
+            }, {
+                "serviceName": "redis",
+                "alias": ["redis1"]
+            }]
+        },
+        "sb": {
+            "useWeaveNet": true,
+            "services": [{
+                "serviceName": "nodejs",
+                "alias": ["ap-web1", "ap-web2", "dc-web", "dc-web2"],
+                "count": 4,
+                "ports": {
+                    "19001": "9001"
+                }
+            }]
+        },
+        "lan": {
+            "useWeaveNet": true,
+            "services": [{
+                "serviceName": "zookeeper",
+                "ports": {
+                    "2181": "2181"
+                }
+            }, {
+                "serviceName": "memcached",
+                "ports": {
+                    "11211": "11211"
+                }
+            }, {
+                "serviceName": "es",
+                "ports": {
+                    "9200": "9200",
+                    "9300": "9300"
+                }
+            }, {
+                "serviceName": "redis",
+                "ports": {
+                    "6379": "6379"
+                }
+            }, {
+                "serviceName": "fastdfs",
+                "ports": {
+                    "22122": "22122"
+                }
+            }, {
+                "serviceName": "metaq",
+                "links": ["zookeeper1"],
+                "depends": ["zookeeper1"],
+                "ports": {
+                    "8123": "8123"
+                }
+            }, {
+                "serviceName": "rocketmq",
+                "ports": {
+                    "9876": "9876",
+                    "10911": "10911"
+                }
+            }, {
+                "serviceName": "tomcat",
+                "count": 1,
+                "alias": ["k12-web"],
+                "ports": {
+                    "18080": "8080"
+                },
+                "links": ["zookeeper1", "metaq1", "memcached1", "es1"],
+                "depends": ["metaq1", "es1"]
+            }]
+        },
+        "ds": {
+            "useWeaveNet": true,
+            "services": [{
+                "serviceName": "java8",
+                "alias": ["xchat-server"],
+                "ports": {
+                    "10081": "10081",
+                    "127.0.0.1:18080": "8080"
+                }
+            }, {
+                "serviceName": "nodejs",
+                "alias": ["ds-web", "wd-web", "wd-web-mobile", "sop-web"],
+                "count": 4,
+                "ports": {
+                    "19001": "9001"
+                },
+                "links": ["xchat-server"],
+                "depends": ["xchat-server"]
+            }]
+        },
+        "coe": [{
+            "serviceName": "zookeeper"
+        }, {
+            "serviceName": "metaq",
+            "links": ["zookeeper1"],
+            "depends": ["zookeeper1"]
+        }, {
+            "serviceName": "mysql"
+        }, {
+            "serviceName": "atlas",
+            "links": ["mysql1"],
+            "depends": ["mysql1"]
+        }, {
+            "serviceName": "memcached"
+        }, {
+            "serviceName": "es"
+        }, {
+            "serviceName": "redis"
+        }, {
+            "serviceName": "nodejs",
+            "links": ["redis1", "memcached1"],
+            "depends": ["redis1", "memcached1"]
+        }, {
+            "serviceName": "tomcat",
+            "count": 3,
+            "desc": "1:os 2:sop 3:smp",
+            "links": ["atlas1", "zookeeper1", "metaq1", "memcached1", "es1"],
+            "depends": ["atlas1", "metaq1", "es1"]
+        }, {
+            "serviceName": "nginx",
+            "links": ["tomcat1", "tomcat2", "tomcat3", "nodejs1"],
+            "ports": {
+                "8888": "80"
+            }
+        }],
+        "k12": [{
+            "serviceName": "zookeeper"
+        }, {
+            "serviceName": "metaq",
+            "links": ["zookeeper1"],
+            "depends": ["zookeeper1"]
+        }, {
+            "serviceName": "mysql"
+        }, {
+            "serviceName": "atlas",
+            "links": ["mysql1"],
+            "depends": [{ "service": "mysql1", "type": "service_healthy" }]
+        }, {
+            "serviceName": "memcached"
+        }, {
+            "serviceName": "es"
+        }, {
+            "serviceName": "redis"
+        }, {
+            "serviceName": "sms"
+        }, {
+            "serviceName": "fastdfs",
+            "ports": {
+                "22122": "22122"
+            }
+        }, {
+            "serviceName": "cw"
+        }, {
+            "serviceName": "nodejs",
+            "links": ["redis1", "memcached1"],
+            "depends": ["redis1", "memcached1"],
+            "ports": {
+                "41032": "3000"
+            }
+        }, {
+            "serviceName": "java8",
+            "count": 2,
+            "alias": ["k12-app-server", "coe-app-server"],
+            "links": ["atlas1", "zookeeper1", "metaq1", "memcached1"],
+            "depends": [{ "service": "atlas1", "type": "service_healthy" }, "metaq1", "zookeeper1", "memcached1"],
+            "ports": {
+                "10081": "10081"
+            }
+        }, {
+            "serviceName": "tomcat",
+            "count": 6,
+            "alias": ["os", "elo", "elm", "coeos", "sop", "smp"],
+            "desc": "1:os 2:elo 3:elm 4:coeos 5:coeos 6:coeos ",
+            "links": ["atlas1", "zookeeper1", "metaq1", "memcached1", "es1", "fastdfs1"],
+            "depends": [{ "service": "atlas1", "type": "service_healthy" }, "metaq1", "es1", "fastdfs1"]
+        }, {
+            "serviceName": "nginx",
+            "links": ["os", "elo", "elm", "coeos", "sop", "smp", "nodejs1"],
+            "ports": {
+                "8888": "80"
+            },
+            "depends": ["os", "elo", "elm", "coeos", "sop", "smp"]
+        }]
+    },
+    "cmdConfig": {
+        "value-supervisor": {
+            "img": "value/supervisor"
+        },
+        "value-java8": {
+            "ip": 5,
+            "img": "value/java8",
+            "volumeMap": {
+                "~/.vdata/java8/${index}/conf.d": "/etc/supervisor/conf.d",
+                "~/.vdata/java8/${index}/apps": "/root/apps",
+                "~/.vdata/java8/${index}/logs": "/root/logs",
+                "~/.vdata/java8/${index}/restart.sh": "/root/restart.sh"
+            },
+            "envMap": {
+                "WAN_IP": "${dockerIp}"
+            }
+        },
+        "value-dnsmasq": {
+            "ip": 10,
+            "img": "value/dnsmasq"
+        },
+        "value-etcd": {
+            "ip": 15,
+            "img": "value/etcd",
+            "volumeMap": {
+                "~/.vdata/etcd/${index}": "/root/.etcd"
+            }
+        },
+        "value-mysql": {
+            "ip": 20,
+            "img": "value/mysql",
+            "volumeMap": {
+                "~/.vdata/mysql/${index}/data": "/var/lib/mysql",
+                "~/.vdata/mysql/${index}/mysqld.cnf": "/etc/mysql/mysql.conf.d/mysqld.cnf",
+                "~/.vdata/mysql/${index}/mysql.cnf": "/etc/mysql/conf.d/mysql.cnf"
+            }
+        },
+        "value-fastdfs": {
+            "ip": 25,
+            "img": "value/fastdfs",
+            "volumeMap": {
+                "~/.vdata/fastdfs/${index}/data/tracker": "/root/fastdfs/tracker",
+                "~/.vdata/fastdfs/${index}/data/storage": "/root/fastdfs/storage"
+            }
+        },
+        "value-memcached": {
+            "ip": 30,
+            "img": "value/memcached"
+        },
+        "value-nginx": {
+            "ip": 35,
+            "img": "value/nginx",
+            "volumeMap": {
+                "~/.vdata/nginx/${index}/conf.d": "/usr/local/nginx/conf/conf.d"
+            }
+        },
+        "value-mongodb": {
+            "ip": 40,
+            "img": "value/mongodb",
+            "volumeMap": {
+                "~/.vdata/mongodb/${index}/data": "/root/data",
+                "~/.vdata/mongodb/${index}/log": "/root/log"
+            },
+            "ports": {
+                "27017": "27017"
+            }
+        },
+        "value-zookeeper": {
+            "ip": 45,
+            "img": "value/zookeeper"
+        },
+        "value-metaq": {
+            "ip": 50,
+            "img": "value/metaq",
+            "volumeMap": {
+                "~/.vdata/metaq/${index}/logs": "/root/logs",
+                "~/.vdata/metaq/${index}/meta": "/root/meta",
+                "~/.vdata/metaq/${index}/server.ini": "/usr/metaq/conf/server.ini"
+            }
+        },
+        "value-atlas": {
+            "ip": 55,
+            "img": "value/atlas",
+            "volumeMap": {
+                "~/.vdata/atlas/${index}/test.cnf": "/usr/local/mysql-proxy/conf/test.cnf"
+            }
+        },
+        "value-es": {
+            "ip": 60,
+            "img": "value/es",
+            "volumeMap": {
+                "~/.vdata/es/${index}/logs": "/usr/elasticsearch/logs",
+                "~/.vdata/es/${index}/data": "/usr/elasticsearch/data"
+            }
+        },
+        "value-redis": {
+            "ip": 65,
+            "img": "value/redis",
+            "volumeMap": {
+                "~/.vdata/redis/${index}/data": "/data"
+            }
+        },
+        "value-cw": {
+            "ip": 70,
+            "img": "value/cw",
+            "volumeMap": {
+                "~/.vdata/cw/${index}/conf.d": "/etc/supervisor/conf.d",
+                "~/.vdata/cw/${index}/apps": "/root/apps",
+                "~/.vdata/cw/${index}/restart.sh": "/root/restart.sh"
+            }
+        },
+        "value-sms": {
+            "ip": 75,
+            "img": "value/sms",
+            "volumeMap": {
+                "~/.vdata/sms/${index}/conf.d": "/usr/local/nginx/conf/conf.d"
+            }
+        },
+        "value-tomcat": {
+            "ip": 80,
+            "img": "value/tomcat",
+            "volumeMap": {
+                "~/.vdata/tomcat/${index}/logs": "/usr/tomcat/logs",
+                "~/.vdata/tomcat/${index}/apps": "/root/apps",
+                "~/.vdata/tomcat/${index}/webapps": "/usr/tomcat/webapps",
+                "~/.vdata/tomcat/${index}/restart.sh": "/root/restart.sh"
+            },
+            "envMap": {
+                "WAN_IP": "${dockerIp}"
+            }
+        },
+        "value-nodejs": {
+            "ip": 90,
+            "img": "value/nodejs",
+            "volumeMap": {
+                "~/.vdata/nodejs/${index}/conf.d": "/etc/supervisor/conf.d",
+                "~/.vdata/nodejs/${index}/apps": "/root/apps",
+                "~/.vdata/nodejs/${index}/restart.sh": "/root/restart.sh"
+            }
+        },
+        "value-php": {
+            "ip": 100,
+            "img": "value/php",
+            "volumeMap": {
+                "~/.vdata/php/${index}/conf.d": "/etc/supervisor/conf.d",
+                "~/.vdata/php/${index}/apps": "/root/apps",
+                "~/.vdata/php/${index}/restart.sh": "/root/restart.sh"
+            }
+        },
+        "value-rocketmq": {
+            "ip": 100,
+            "img": "value/rocketmq",
+            "volumeMap": {
+                "~/.vdata/rocketmq/${index}/store": "/root/rocketmq/store",
+                "~/.vdata/rocketmq/${index}/conf": "/root/rocketmq/conf"
+            }
+        }
+    }
+}
